@@ -8,11 +8,12 @@ pygame.mixer.pre_init()
 pygame.init()
 
 # Window settings
+scale_factor = 1.25
 TITLE = "Formation"
-WIDTH = 960
-HEIGHT = 640
+WIDTH = int(1920/scale_factor)
+HEIGHT = int(1080/scale_factor)
 FPS = 60
-GRID_SIZE = 64
+GRID_SIZE = int(90/scale_factor)
 
 # Options
 #sound_on = True
@@ -32,7 +33,7 @@ ORANGE = (255,165,0)
 WHITE = (255, 255, 255)
 
 # Fonts
-FONT_SM = pygame.font.Font("assets/fonts/8514fix.fon", 32)
+FONT_SM = pygame.font.Font("assets/fonts/8514fix.fon", 48)
 FONT_MD = pygame.font.Font("assets/fonts/8514fix.fon", 64)
 FONT_LG = pygame.font.Font("assets/fonts/OCRAEXT.ttf", 100)
 
@@ -79,11 +80,11 @@ block_images = {"TL": load_image("assets/tiles/top_left.png"),
                 "LF": load_image("assets/tiles/lone_float.png"),
                 "SP": load_image("assets/tiles/special.png")}
 
-coin_img = load_image("assets/items/coin.png")
-#heart_img = load_image("assets/items/bandaid.png")
-#oneup_img = load_image("assets/items/first_aid.png")
-#flag_img = load_image("assets/items/flag.png")
-#flagpole_img = load_image("assets/items/flagpole.png")
+coin_img = load_image("assets/items/coin_v2.png")
+heart_img = load_image("assets/items/heart_v2.png")
+oneup_img = load_image("assets/items/first_aid_v2.png")
+flag_img = load_image("assets/items/flag.png")
+flagpole_img = load_image("assets/items/flagpole.png")
 
 #monster_img1 = load_image("assets/enemies/monster-1.png")
 #monster_img2 = load_image("assets/enemies/monster-2.png")
@@ -139,8 +140,8 @@ class Character(Entity):
         self.image_index = 0
         self.steps = 0
 
-        self.speed = 5
-        self.jump_power = 20
+        self.speed = 6
+        self.jump_power = 24
 
         self.vx = 0
         self.vy = 0
@@ -221,19 +222,19 @@ class Character(Entity):
     #         self.hearts -= 1
     #         self.invincibility = int(0.75 * FPS)
 
-    # def process_powerups(self, powerups):
-    #     hit_list = pygame.sprite.spritecollide(self, powerups, True)
+    def process_powerups(self, powerups):
+        hit_list = pygame.sprite.spritecollide(self, powerups, True)
 
-    #     for p in hit_list:
-    #         #play_sound(POWERUP_SOUND)
-    #         p.apply(self)
+        for p in hit_list:
+            #play_sound(POWERUP_SOUND)
+            p.apply(self)
 
-    # def check_flag(self, level):
-    #     hit_list = pygame.sprite.spritecollide(self, level.flag, False)
+    def check_flag(self, level):
+        hit_list = pygame.sprite.spritecollide(self, level.flag, False)
 
-    #     if len(hit_list) > 0:
-    #         level.completed = True
-    #         #play_sound(LEVELUP_SOUND)
+        if len(hit_list) > 0:
+            level.completed = True
+            #play_sound(LEVELUP_SOUND)
 
     def set_image(self): 
         if self.on_ground:
@@ -262,10 +263,10 @@ class Character(Entity):
     def die(self):
         self.lives -= 1
 
-        #if self.lives > 0:
-            #play_sound(DIE_SOUND)
-        #else:
-            #play_sound(GAMEOVER_SOUND)
+        if self.lives > 0:
+            play_sound(DIE_SOUND)
+        else:
+            play_sound(GAMEOVER_SOUND)
 
     def respawn(self, level):
         self.rect.x = level.start_x
@@ -283,8 +284,8 @@ class Character(Entity):
 
         if self.hearts > 0:
             self.process_coins(level.coins)
-            # self.process_powerups(level.powerups)
-            # self.check_flag(level)
+            self.process_powerups(level.powerups)
+            self.check_flag(level)
 
             if self.invincibility > 0:
                 self.invincibility -= 1
@@ -435,24 +436,24 @@ class Coin(Entity):
 #         if reverse:
 #             self.reverse()
 
-# class OneUp(Entity):
-#     def __init__(self, x, y, image):
-#         super().__init__(x, y, image)
+class OneUp(Entity):
+    def __init__(self, x, y, image):
+        super().__init__(x, y, image)
 
-#     def apply(self, character):
-#         character.lives += 1
+    def apply(self, character):
+        character.lives += 1
 
-# class Heart(Entity):
-#     def __init__(self, x, y, image):
-#         super().__init__(x, y, image)
+class Heart(Entity):
+    def __init__(self, x, y, image):
+        super().__init__(x, y, image)
 
-#     def apply(self, character):
-#         character.hearts += 1
-#         character.hearts = max(character.hearts, character.max_hearts)
+    def apply(self, character):
+        character.hearts += 1
+        character.hearts = max(character.hearts, character.max_hearts)
 
-# class Flag(Entity):
-#     def __init__(self, x, y, image):
-#         super().__init__(x, y, image)
+class Flag(Entity):
+    def __init__(self, x, y, image):
+        super().__init__(x, y, image)
 
 class Level():
 
@@ -500,23 +501,23 @@ class Level():
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
             self.starting_coins.append(Coin(x, y, coin_img))
 
-        #for item in map_data['oneups']:
-            #x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
-            #self.starting_powerups.append(OneUp(x, y, oneup_img))
+        for item in map_data['oneups']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_powerups.append(OneUp(x, y, oneup_img))
 
-        #for item in map_data['hearts']:
-            #x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
-            #self.starting_powerups.append(Heart(x, y, heart_img))
+        for item in map_data['hearts']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_powerups.append(Heart(x, y, heart_img))
 
-        #for i, item in enumerate(map_data['flag']):
-            #x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+        for i, item in enumerate(map_data['flag']):
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
 
-            #if i == 0:
-            #    img = flag_img
-            #else:
-            #    img = flagpole_img
+            if i == 0:
+               img = flag_img
+            else:
+               img = flagpole_img
 
-            #self.starting_flag.append(Flag(x, y, img))
+            self.starting_flag.append(Flag(x, y, img))
 
         self.background_layer = pygame.Surface([self.width, self.height], pygame.SRCALPHA, 32)
         # self.scenery_layer = pygame.Surface([self.width, self.height], pygame.SRCALPHA, 32)
@@ -643,36 +644,36 @@ class Game():
         line1 = FONT_LG.render(TITLE, 1, ORANGE)
         line2 = FONT_SM.render("Press any key to start.", 1, WHITE)
 
-        x1 = WIDTH / 2 - line1.get_width() / 2;
-        y1 = HEIGHT / 3 - line1.get_height() / 2;
+        x1 = WIDTH / 2 - line1.get_width() / 2
+        y1 = HEIGHT / 3 - line1.get_height() / 2
 
-        x2 = WIDTH / 2 - line2.get_width() / 2;
-        y2 = y1 + line1.get_height() + 16;
+        x2 = WIDTH / 2 - line2.get_width() / 2
+        y2 = y1 + line1.get_height() + 16
 
         surface.blit(line1, (x1, y1))
         surface.blit(line2, (x2, y2))
 
     def display_message(self, surface, primary_text, secondary_text):
-        line1 = FONT_MD.render(primary_text, 1, WHITE)
+        line1 = FONT_MD.render(primary_text, 1, ORANGE)
         line2 = FONT_SM.render(secondary_text, 1, WHITE)
 
-        x1 = WIDTH / 2 - line1.get_width() / 2;
-        y1 = HEIGHT / 3 - line1.get_height() / 2;
+        x1 = WIDTH / 2 - line1.get_width() / 2
+        y1 = HEIGHT / 3 - line1.get_height() / 2
 
-        x2 = WIDTH / 2 - line2.get_width() / 2;
-        y2 = y1 + line1.get_height() + 16;
+        x2 = WIDTH / 2 - line2.get_width() / 2
+        y2 = y1 + line1.get_height() + 16
 
         surface.blit(line1, (x1, y1))
         surface.blit(line2, (x2, y2))
 
-    #def display_stats(self, surface):
-        #hearts_text = FONT_SM.render("Hearts: " + str(self.hero.hearts), 1, WHITE)
-        #lives_text = FONT_SM.render("Lives: " + str(self.hero.lives), 1, WHITE)
-        #score_text = FONT_SM.render("Score: " + str(self.hero.score), 1, WHITE)
+    def display_stats(self, surface):
+        hearts_text = FONT_SM.render("Hearts: " + str(self.hero.hearts), 1, WHITE)
+        lives_text = FONT_SM.render("Lives: " + str(self.hero.lives), 1, WHITE)
+        score_text = FONT_SM.render("Score: " + str(self.hero.score), 1, WHITE)
 
-        #surface.blit(score_text, (WIDTH - score_text.get_width() - 32, 32))
-        #surface.blit(hearts_text, (32, 32))
-        #surface.blit(lives_text, (32, 64))
+        surface.blit(score_text, (WIDTH - score_text.get_width() - 32, 32))
+        surface.blit(hearts_text, (32, 32))
+        surface.blit(lives_text, (32, 64))
 
     def process_events(self):
         for event in pygame.event.get():
@@ -752,7 +753,7 @@ class Game():
         self.window.blit(self.level.inactive_layer, [offset_x, offset_y])
         self.window.blit(self.level.active_layer, [offset_x, offset_y])
 
-        #self.display_stats(self.window)
+        self.display_stats(self.window)
 
         if self.stage == Game.SPLASH:
             self.display_splash(self.window)
