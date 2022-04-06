@@ -24,7 +24,7 @@ RIGHT = pygame.K_RIGHT
 JUMP = pygame.K_SPACE
 
 # Levels
-levels = ["levels/world-1.json"]
+levels = ["levels/world-1.json", "levels/world-2.json"]
 
 # Colors
 TRANSPARENT = (0, 0, 0, 0)
@@ -86,12 +86,12 @@ oneup_img = load_image("assets/items/first_aid_v2.png")
 flag_img = load_image("assets/items/flag.png")
 flagpole_img = load_image("assets/items/flagpole.png")
 
-#monster_img1 = load_image("assets/enemies/monster-1.png")
-#monster_img2 = load_image("assets/enemies/monster-2.png")
-#monster_images = [monster_img1, monster_img2]
+monster_img1 = load_image("assets/enemies/monster-1.png")
+monster_img2 = load_image("assets/enemies/monster-2.png")
+monster_images = [monster_img1, monster_img2]
 
-#bear_img = load_image("assets/enemies/bear-1.png")
-#bear_images = [bear_img]
+bear_img = load_image("assets/enemies/bear-1.png")
+bear_images = [bear_img]
 
 # Sounds
 #JUMP_SOUND = pygame.mixer.Sound("assets/sounds/jump.wav")
@@ -214,13 +214,13 @@ class Character(Entity):
             #play_sound(COIN_SOUND)
             self.score += coin.value
 
-    # def process_enemies(self, enemies):
-    #     hit_list = pygame.sprite.spritecollide(self, enemies, False)
+    def process_enemies(self, enemies):
+        hit_list = pygame.sprite.spritecollide(self, enemies, False)
 
-    #     if len(hit_list) > 0 and self.invincibility == 0:
-    #         #play_sound(HURT_SOUND)
-    #         self.hearts -= 1
-    #         self.invincibility = int(0.75 * FPS)
+        if len(hit_list) > 0 and self.invincibility == 0:
+            #play_sound(HURT_SOUND)
+            self.hearts -= 1
+            self.invincibility = int(0.75 * FPS)
 
     def process_powerups(self, powerups):
         hit_list = pygame.sprite.spritecollide(self, powerups, True)
@@ -263,10 +263,10 @@ class Character(Entity):
     def die(self):
         self.lives -= 1
 
-        if self.lives > 0:
-            play_sound(DIE_SOUND)
-        else:
-            play_sound(GAMEOVER_SOUND)
+        # if self.lives > 0:
+        #     play_sound(DIE_SOUND)
+        # else:
+        #     play_sound(GAMEOVER_SOUND)
 
     def respawn(self, level):
         self.rect.x = level.start_x
@@ -276,7 +276,7 @@ class Character(Entity):
         self.facing_right = True
 
     def update(self, level):
-        # self.process_enemies(level.enemies)
+        self.process_enemies(level.enemies)
         self.apply_gravity(level)
         self.move_and_process_blocks(level.blocks)
         self.check_world_boundaries(level)
@@ -298,143 +298,143 @@ class Coin(Entity):
 
         self.value = 1
 
-# class Enemy(Entity):
-#     def __init__(self, x, y, images):
-#         super().__init__(x, y, images[0])
+class Enemy(Entity):
+    def __init__(self, x, y, images):
+        super().__init__(x, y, images[0])
 
-#         self.images_left = images
-#         self.images_right = [pygame.transform.flip(img, 1, 0) for img in images]
-#         self.current_images = self.images_left
-#         self.image_index = 0
-#         self.steps = 0
+        self.images_left = images
+        self.images_right = [pygame.transform.flip(img, 1, 0) for img in images]
+        self.current_images = self.images_left
+        self.image_index = 0
+        self.steps = 0
 
-#     def reverse(self):
-#         self.vx *= -1
+    def reverse(self):
+        self.vx *= -1
 
-#         if self.vx < 0:
-#             self.current_images = self.images_left
-#         else:
-#             self.current_images = self.images_right
+        if self.vx < 0:
+            self.current_images = self.images_left
+        else:
+            self.current_images = self.images_right
 
-#         self.image = self.current_images[self.image_index]
+        self.image = self.current_images[self.image_index]
 
-#     def check_world_boundaries(self, level):
-#         if self.rect.left < 0:
-#             self.rect.left = 0
-#             self.reverse()
-#         elif self.rect.right > level.width:
-#             self.rect.right = level.width
-#             self.reverse()
+    def check_world_boundaries(self, level):
+        if self.rect.left < 0:
+            self.rect.left = 0
+            self.reverse()
+        elif self.rect.right > level.width:
+            self.rect.right = level.width
+            self.reverse()
 
-#     def move_and_process_blocks(self, blocks):
-#         self.rect.x += self.vx
-#         hit_list = pygame.sprite.spritecollide(self, blocks, False)
+    def move_and_process_blocks(self, blocks):
+        self.rect.x += self.vx
+        hit_list = pygame.sprite.spritecollide(self, blocks, False)
 
-#         for block in hit_list:
-#             if self.vx > 0:
-#                 self.rect.right = block.rect.left
-#                 self.reverse()
-#             elif self.vx < 0:
-#                 self.rect.left = block.rect.right
-#                 self.reverse()
+        for block in hit_list:
+            if self.vx > 0:
+                self.rect.right = block.rect.left
+                self.reverse()
+            elif self.vx < 0:
+                self.rect.left = block.rect.right
+                self.reverse()
 
-#         self.rect.y += self.vy # the +1 is hacky. not sure why it helps.
-#         hit_list = pygame.sprite.spritecollide(self, blocks, False)
+        self.rect.y += self.vy # the +1 is hacky. not sure why it helps.
+        hit_list = pygame.sprite.spritecollide(self, blocks, False)
 
-#         for block in hit_list:
-#             if self.vy > 0:
-#                 self.rect.bottom = block.rect.top
-#                 self.vy = 0
-#             elif self.vy < 0:
-#                 self.rect.top = block.rect.bottom
-#                 self.vy = 0
+        for block in hit_list:
+            if self.vy > 0:
+                self.rect.bottom = block.rect.top
+                self.vy = 0
+            elif self.vy < 0:
+                self.rect.top = block.rect.bottom
+                self.vy = 0
 
-#     def set_images(self):
-#         if self.steps == 0:
-#             self.image = self.current_images[self.image_index]
-#             self.image_index = (self.image_index + 1) % len(self.current_images)
+    def set_images(self):
+        if self.steps == 0:
+            self.image = self.current_images[self.image_index]
+            self.image_index = (self.image_index + 1) % len(self.current_images)
 
-#         self.steps = (self.steps + 1) % 20 # Nothing significant about 20. It just seems to work okay.
+        self.steps = (self.steps + 1) % 20 # Nothing significant about 20. It just seems to work okay.
 
-#     def is_near(self, hero):
-#         return abs(self.rect.x - hero.rect.x) < 2 * WIDTH
+    def is_near(self, hero):
+        return abs(self.rect.x - hero.rect.x) < 2 * WIDTH
 
-#     def update(self, level, hero):
-#         if self.is_near(hero):
-#             self.apply_gravity(level)
-#             self.move_and_process_blocks(level.blocks)
-#             self.check_world_boundaries(level)
-#             self.set_images()
+    def update(self, level, hero):
+        if self.is_near(hero):
+            self.apply_gravity(level)
+            self.move_and_process_blocks(level.blocks)
+            self.check_world_boundaries(level)
+            self.set_images()
 
-#     def reset(self):
-#         self.rect.x = self.start_x
-#         self.rect.y = self.start_y
-#         self.vx = self.start_vx
-#         self.vy = self.start_vy
-#         self.current_images = self.images_left
-#         self.image = self.current_images[0]
-#         self.steps = 0
+    def reset(self):
+        self.rect.x = self.start_x
+        self.rect.y = self.start_y
+        self.vx = self.start_vx
+        self.vy = self.start_vy
+        self.current_images = self.images_left
+        self.image = self.current_images[0]
+        self.steps = 0
 
-# class Bear(Enemy):
-#     def __init__(self, x, y, images):
-#         super().__init__(x, y, images)
+class Bear(Enemy):
+    def __init__(self, x, y, images):
+        super().__init__(x, y, images)
 
-#         self.start_x = x
-#         self.start_y = y
-#         self.start_vx = -2
-#         self.start_vy = 0
+        self.start_x = x
+        self.start_y = y
+        self.start_vx = -2
+        self.start_vy = 0
 
-#         self.vx = self.start_vx
-#         self.vy = self.start_vy
+        self.vx = self.start_vx
+        self.vy = self.start_vy
 
-# class Monster(Enemy):
-#     def __init__(self, x, y, images):
-#         super().__init__(x, y, images)
+class Monster(Enemy):
+    def __init__(self, x, y, images):
+        super().__init__(x, y, images)
 
-#         self.start_x = x
-#         self.start_y = y
-#         self.start_vx = -2
-#         self.start_vy = 0
+        self.start_x = x
+        self.start_y = y
+        self.start_vx = -2
+        self.start_vy = 0
 
-#         self.vx = self.start_vx
-#         self.vy = self.start_vy
+        self.vx = self.start_vx
+        self.vy = self.start_vy
 
-#     def move_and_process_blocks(self, blocks):
-#         reverse = False
+    def move_and_process_blocks(self, blocks):
+        reverse = False
 
-#         self.rect.x += self.vx
-#         hit_list = pygame.sprite.spritecollide(self, blocks, False)
+        self.rect.x += self.vx
+        hit_list = pygame.sprite.spritecollide(self, blocks, False)
 
-#         for block in hit_list:
-#             if self.vx > 0:
-#                 self.rect.right = block.rect.left
-#                 self.reverse()
-#             elif self.vx < 0:
-#                 self.rect.left = block.rect.right
-#                 self.reverse()
+        for block in hit_list:
+            if self.vx > 0:
+                self.rect.right = block.rect.left
+                self.reverse()
+            elif self.vx < 0:
+                self.rect.left = block.rect.right
+                self.reverse()
 
-#         self.rect.y += self.vy + 1 # the +1 is hacky. not sure why it helps.
-#         hit_list = pygame.sprite.spritecollide(self, blocks, False)
+        self.rect.y += self.vy + 1 # the +1 is hacky. not sure why it helps.
+        hit_list = pygame.sprite.spritecollide(self, blocks, False)
 
-#         reverse = True
+        reverse = True
 
-#         for block in hit_list:
-#             if self.vy >= 0:
-#                 self.rect.bottom = block.rect.top
-#                 self.vy = 0
+        for block in hit_list:
+            if self.vy >= 0:
+                self.rect.bottom = block.rect.top
+                self.vy = 0
 
-#                 if self.vx > 0 and self.rect.right <= block.rect.right:
-#                     reverse = False
+                if self.vx > 0 and self.rect.right <= block.rect.right:
+                    reverse = False
 
-#                 elif self.vx < 0 and self.rect.left >= block.rect.left:
-#                     reverse = False
+                elif self.vx < 0 and self.rect.left >= block.rect.left:
+                    reverse = False
 
-#             elif self.vy < 0:
-#                 self.rect.top = block.rect.bottom
-#                 self.vy = 0
+            elif self.vy < 0:
+                self.rect.top = block.rect.bottom
+                self.vy = 0
 
-#         if reverse:
-#             self.reverse()
+        if reverse:
+            self.reverse()
 
 class OneUp(Entity):
     def __init__(self, x, y, image):
@@ -489,13 +489,13 @@ class Level():
             img = block_images[item[2]]
             self.starting_blocks.append(Block(x, y, img))
 
-        #for item in map_data['bears']:
-            #x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
-            #self.starting_enemies.append(Bear(x, y, bear_images))
+        for item in map_data['bears']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_enemies.append(Bear(x, y, bear_images))
 
-        #for item in map_data['monsters']:
-            #x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
-            #self.starting_enemies.append(Monster(x, y, monster_images))
+        for item in map_data['monsters']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_enemies.append(Monster(x, y, monster_images))
 
         for item in map_data['coins']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
