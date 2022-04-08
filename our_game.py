@@ -44,13 +44,19 @@ def load_image(file_path, width=GRID_SIZE, height=GRID_SIZE):
 
     return img
 
-#def play_sound(sound, loops=0, maxtime=0, fade_ms=0):
-    if sound_on:
-        sound.play(loops, maxtime, fade_ms)
+def load_image_bigger(file_path, width=GRID_SIZE * 2, height=GRID_SIZE * 2):
+    img = pygame.image.load(file_path)
+    img = pygame.transform.scale(img, (width, height))
 
-#def play_music():
-    if sound_on:
-        pygame.mixer.music.play(-1)
+    return img
+
+#def play_sound(sound, loops=0, maxtime=0, fade_ms=0):
+#     if sound_on:
+#         sound.play(loops, maxtime, fade_ms)
+
+# #def play_music():
+#     if sound_on:
+#         pygame.mixer.music.play(-1)
 
 # Images
 
@@ -96,18 +102,52 @@ block_images = {"TL": load_image("assets/tiles/top_left.png"),
                 "CN3": load_image("assets/tiles/center3.png"),
                 "LF3": load_image("assets/tiles/lone_float3.png")}
 
-coin_img = load_image("assets/items/coin_v2.png")
-heart_img = load_image("assets/items/heart_v2.png")
-oneup_img = load_image("assets/items/first_aid_v2.png")
+coin_img = load_image("assets/items/new/diamond_icon.png")
+heart_img = load_image("assets/items/new/heart_icon.png")
+oneup_img = load_image("assets/items/new/firstaid_icon.png")
+deathblock_img = load_image("assets/tiles/deathblock.png")
 flag_img = load_image("assets/items/flag.png")
 flagpole_img = load_image("assets/items/flagpole.png")
 
-monster_img1 = load_image("assets/enemies/golem-1.png")
-monster_img2 = load_image("assets/enemies/golem-2.png")
-monster_images = [monster_img1, monster_img2]
+monster_images = [load_image_bigger("assets/enemies/golem_01/golem_01_01.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_02.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_03.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_04.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_05.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_06.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_07.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_08.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_09.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_10.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_11.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_12.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_13.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_14.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_15.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_16.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_17.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_18.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_19.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_20.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_21.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_22.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_23.png"),
+                  load_image_bigger("assets/enemies/golem_01/golem_01_24.png")]
 
-bear_img = load_image("assets/enemies/golemM-1.png")
-bear_images = [bear_img]
+# monster_images = ["assets/enemies/golem_01/golem_01_" + str(x) + ".png" for x in range(10,24,1)]
+
+bear_images = [load_image("assets/enemies/wraith_03/wraith_03_01.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_02.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_03.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_04.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_05.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_06.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_07.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_08.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_09.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_10.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_11.png"),
+               load_image("assets/enemies/wraith_03/wraith_03_12.png")]
 
 # Sounds
 #JUMP_SOUND = pygame.mixer.Sound("assets/sounds/jump.wav")
@@ -139,6 +179,14 @@ class Block(Entity):
 
     def __init__(self, x, y, image):
         super().__init__(x, y, image)
+
+class DeathBlock(Entity):
+
+    def __init__(self, x, y, image):
+        super().__init__(x, y, image)
+    
+    def apply(self, character):
+        character.hearts -= 1
 
 class Character(Entity):
 
@@ -224,6 +272,7 @@ class Character(Entity):
                 self.vy = 0
 
     def process_coins(self, coins):
+        
         hit_list = pygame.sprite.spritecollide(self, coins, True)
 
         for coin in hit_list:
@@ -237,6 +286,26 @@ class Character(Entity):
             #play_sound(HURT_SOUND)
             self.hearts -= 1
             self.invincibility = int(0.75 * FPS)
+    
+    def process_deathblocks(self, deathblocks):
+        epsilon_h = self.rect.h / 20
+        epsilon_w = self.rect.w / 20
+        hit_list = pygame.sprite.spritecollide(self, deathblocks, False)
+
+        for block in hit_list:
+            # if self.vx > 0:
+            #     self.rect.right = block.rect.left - epsilon_w
+            # elif self.vx < 0:
+            #     self.rect.left = block.rect.right + epsilon_w
+            # if self.vy > 0:
+            #     self.rect.bottom = block.rect.top - epsilon_h
+            # elif self.vy < 0:
+            #     self.rect.top = block.rect.bottom + epsilon_h
+            if self.invincibility == 0:
+                block.apply(self)
+                self.invincibility = int(0.75 * FPS)
+                self.vx = 0
+                self.vy = 0
 
     def process_powerups(self, powerups):
         hit_list = pygame.sprite.spritecollide(self, powerups, True)
@@ -260,7 +329,7 @@ class Character(Entity):
                 else:
                     self.running_images = self.images_run_left
 
-                self.steps = (self.steps + 1) % self.speed # Works well with 2 images, try lower number if more frames are in animation
+                self.steps = (self.steps + 1) % self.speed
 
                 if self.steps == 0:
                     self.image_index = (self.image_index + 1) % len(self.running_images)
@@ -301,6 +370,7 @@ class Character(Entity):
         if self.hearts > 0:
             self.process_coins(level.coins)
             self.process_powerups(level.powerups)
+            self.process_deathblocks(level.deathblocks)
             self.check_flag(level)
 
             if self.invincibility > 0:
@@ -318,8 +388,8 @@ class Enemy(Entity):
     def __init__(self, x, y, images):
         super().__init__(x, y, images[0])
 
-        self.images_left = images
-        self.images_right = [pygame.transform.flip(img, 1, 0) for img in images]
+        self.images_right = images
+        self.images_left = [pygame.transform.flip(img, 1, 0) for img in images]
         self.current_images = self.images_left
         self.image_index = 0
         self.steps = 0
@@ -354,7 +424,7 @@ class Enemy(Entity):
                 self.rect.left = block.rect.right
                 self.reverse()
 
-        self.rect.y += self.vy # the +1 is hacky. not sure why it helps.
+        self.rect.y += self.vy 
         hit_list = pygame.sprite.spritecollide(self, blocks, False)
 
         for block in hit_list:
@@ -370,7 +440,7 @@ class Enemy(Entity):
             self.image = self.current_images[self.image_index]
             self.image_index = (self.image_index + 1) % len(self.current_images)
 
-        self.steps = (self.steps + 1) % 20 # Nothing significant about 20. It just seems to work okay.
+        self.steps = (self.steps + 1) % 2
 
     def is_near(self, hero):
         return abs(self.rect.x - hero.rect.x) < 2 * WIDTH
@@ -478,12 +548,14 @@ class Level():
         self.starting_enemies = []
         self.starting_coins = []
         self.starting_powerups = []
+        self.starting_deathblocks = []
         self.starting_flag = []
 
         self.blocks = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.coins = pygame.sprite.Group()
         self.powerups = pygame.sprite.Group()
+        self.deathblocks = pygame.sprite.Group()
         self.flag = pygame.sprite.Group()
 
         self.active_sprites = pygame.sprite.Group()
@@ -520,6 +592,10 @@ class Level():
         for item in map_data['oneups']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
             self.starting_powerups.append(OneUp(x, y, oneup_img))
+
+        for item in map_data['deathblocks']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_deathblocks.append(DeathBlock(x, y, deathblock_img))
 
         for item in map_data['hearts']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
@@ -592,12 +668,12 @@ class Level():
         self.enemies.add(self.starting_enemies)
         self.coins.add(self.starting_coins)
         self.powerups.add(self.starting_powerups)
+        self.deathblocks.add(self.starting_deathblocks)
         self.flag.add(self.starting_flag)
 
-        self.active_sprites.add(self.coins, self.enemies, self.powerups)
+        self.active_sprites.add(self.coins, self.enemies, self.powerups, self.deathblocks)
         self.inactive_sprites.add(self.blocks, self.flag)
 
-        # with this speed up blitting on slower computers?
         for s in self.active_sprites:
             s.image.convert()
 
@@ -606,7 +682,6 @@ class Level():
 
         self.inactive_sprites.draw(self.inactive_layer)
 
-        # is converting layers helpful at all?
         self.background_layer.convert()
         # self.scenery_layer.convert()
         self.inactive_layer.convert()
@@ -616,8 +691,9 @@ class Level():
         self.enemies.add(self.starting_enemies)
         self.coins.add(self.starting_coins)
         self.powerups.add(self.starting_powerups)
+        self.deathblocks.add(self.starting_deathblocks)
 
-        self.active_sprites.add(self.coins, self.enemies, self.powerups)
+        self.active_sprites.add(self.coins, self.enemies, self.powerups, self.deathblocks)
 
         for e in self.enemies:
             e.reset()
