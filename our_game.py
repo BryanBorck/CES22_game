@@ -24,7 +24,7 @@ RIGHT = pygame.K_RIGHT
 JUMP = pygame.K_SPACE
 
 # Levels
-levels = ["levels/world-1.json", "levels/world-2.json"]
+levels = ["levels/world-1.json", "levels/world-2.json", "levels/world-3.json"]
 
 # Colors
 TRANSPARENT = (0, 0, 0, 0)
@@ -78,7 +78,23 @@ block_images = {"TL": load_image("assets/tiles/top_left.png"),
                 "TP": load_image("assets/tiles/top.png"),
                 "CN": load_image("assets/tiles/center.png"),
                 "LF": load_image("assets/tiles/lone_float.png"),
-                "SP": load_image("assets/tiles/special.png")}
+                "SP": load_image("assets/tiles/special.png"),
+                "TL2": load_image("assets/tiles/top_left2.png"),
+                "TM2": load_image("assets/tiles/top_middle2.png"),
+                "TR2": load_image("assets/tiles/top_right2.png"),
+                "ER2": load_image("assets/tiles/end_right2.png"),
+                "EL2": load_image("assets/tiles/end_left2.png"),
+                "TP2": load_image("assets/tiles/top2.png"),
+                "CN2": load_image("assets/tiles/center2.png"),
+                "LF2": load_image("assets/tiles/lone_float2.png"),
+                "TL3": load_image("assets/tiles/top_left3.png"),
+                "TM3": load_image("assets/tiles/top_middle3.png"),
+                "TR3": load_image("assets/tiles/top_right3.png"),
+                "ER3": load_image("assets/tiles/end_right3.png"),
+                "EL3": load_image("assets/tiles/end_left3.png"),
+                "TP3": load_image("assets/tiles/top3.png"),
+                "CN3": load_image("assets/tiles/center3.png"),
+                "LF3": load_image("assets/tiles/lone_float3.png")}
 
 coin_img = load_image("assets/items/coin_v2.png")
 heart_img = load_image("assets/items/heart_v2.png")
@@ -86,11 +102,11 @@ oneup_img = load_image("assets/items/first_aid_v2.png")
 flag_img = load_image("assets/items/flag.png")
 flagpole_img = load_image("assets/items/flagpole.png")
 
-monster_img1 = load_image("assets/enemies/monster-1.png")
-monster_img2 = load_image("assets/enemies/monster-2.png")
+monster_img1 = load_image("assets/enemies/golem-1.png")
+monster_img2 = load_image("assets/enemies/golem-2.png")
 monster_images = [monster_img1, monster_img2]
 
-bear_img = load_image("assets/enemies/bear-1.png")
+bear_img = load_image("assets/enemies/golemM-1.png")
 bear_images = [bear_img]
 
 # Sounds

@@ -3,7 +3,7 @@
 	"width": 65,
 	"height": 12,
 	"background-color": [130, 182, 255],
-	"background-img": "assets/backgrounds/new/background_blue.jpg",
+	"background-img": "assets/backgrounds/new/background_blue.png",
 	"background-position": "top",
 	"background-repeat-x": 1,
 	"background-fill-y": 1,
