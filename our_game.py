@@ -8,7 +8,7 @@ pygame.mixer.pre_init()
 pygame.init()
 
 # Window settings
-scale_factor = 1.25
+scale_factor = 1920/pygame.display.get_desktop_sizes()[0][0]
 TITLE = "Formation"
 WIDTH = int(1920/scale_factor)
 HEIGHT = int(1080/scale_factor)
