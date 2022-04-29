@@ -915,7 +915,7 @@ class Game():
 
     def display_splash(self, surface):
         line1 = FONT_LG.render(TITLE, 1, WHITE)
-        line2 = FONT_SM.render("Press any key to start.", 1, WHITE)
+        line2 = FONT_SM.render("Pressione qualquer tecla para começar.", 1, WHITE)
 
         x1 = WIDTH / 2 - line1.get_width() / 2
         y1 = HEIGHT / 3 - line1.get_height() / 2
@@ -1077,17 +1077,17 @@ class Game():
         if self.stage == Game.SPLASH:
             self.display_splash(self.window)
         elif self.stage == Game.START:
-            self.display_message(self.window, "Ready?!!!", "Press any key to start.")
+            self.display_message(self.window, "Preparado?!!!", "Pressione qualquer tecla para começar.")
         elif self.stage == Game.PAUSED:
-            self.display_message(self.window, "PAUSED", "Press 'space key' to continue or 'esc key' to quit.")
+            self.display_message(self.window, "Game Pausado", "Pressione 'espaço' para continuar ou 'ESC' para sair do jogo.")
         elif self.stage == Game.LEVEL_COMPLETED:
-            self.display_message(self.window, "Level Complete", "Press any key to continue.")
+            self.display_message(self.window, "Level Completo", "Pressione qualquer tecla para continuar.")
         elif self.stage == Game.LEVEL_uncompleted:
-            self.display_message(self.window, "Level Incomplete", "Please collect at least five stars.")
+            self.display_message(self.window, "Level Incompleto", "Por favor colete TODAS as 5 estrelas.")
         elif self.stage == Game.VICTORY:
-            self.display_message(self.window, "You Win!", "Press 'R' to restart.")
+            self.display_message(self.window, "Você Venceu! :)", "Pressione 'R' para recomeçar.")
         elif self.stage == Game.GAME_OVER:
-            self.display_message(self.window, "Game Over", "Press 'R' to restart.")
+            self.display_message(self.window, "Game Over", "Pressione 'R' para recomeçar.")
 
         pygame.display.flip()
 
