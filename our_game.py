@@ -20,7 +20,7 @@ GRID_SIZE = int(90/scale_factor)
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 # Options
-#sound_on = True
+sound_on = True
 
 # Controls
 LEFT = pygame.K_LEFT
@@ -49,19 +49,19 @@ def load_image(file_path, width=GRID_SIZE, height=GRID_SIZE):
 
     return img
 
-def load_image_bigger(file_path, width=GRID_SIZE * 2, height=GRID_SIZE * 2):
+def load_image_bigger(file_path, width=GRID_SIZE * 1.5, height=GRID_SIZE * 1.5):
     img = pygame.image.load(file_path)
     img = pygame.transform.scale(img, (width, height))
 
     return img
 
-#def play_sound(sound, loops=0, maxtime=0, fade_ms=0):
-#     if sound_on:
-#         sound.play(loops, maxtime, fade_ms)
+def play_sound(sound, loops=0, maxtime=0, fade_ms=0):
+    if sound_on:
+        sound.play(loops, maxtime, fade_ms)
 
-# #def play_music():
-#     if sound_on:
-#         pygame.mixer.music.play(-1)
+#def play_music():
+    # if sound_on:
+    #     pygame.mixer.music.play(-1)
 
 # Images
 
@@ -122,18 +122,39 @@ full_heart = pygame.image.load('assets/items/new/full_heart.png').convert_alpha(
 half_heart = pygame.image.load('assets/items/new/half_heart.png').convert_alpha()
 empty_heart = pygame.image.load('assets/items/new/empty_heart.png').convert_alpha()
 
-monster_walk = []
+monster_walk1 = []
 
 for x in range(1,25):
-    monster_walk.append(load_image("assets/enemies/golem_01/golem_01_{:02d}.png".format(x)))
+    monster_walk1.append(load_image_bigger("assets/enemies/golem_01/golem_01_{:02d}.png".format(x)))
 
-monster_dead = []
+monster_walk2 = []
+
+for x in range(1,25):
+    monster_walk2.append(load_image_bigger("assets/enemies/golem_02/golem_02_{:02d}.png".format(x)))
+
+monster_walk3 = []
+
+for x in range(1,25):
+    monster_walk3.append(load_image_bigger("assets/enemies/golem_03/golem_03_{:02d}.png".format(x)))
+
+monster_dead1 = []
 
 for x in range(1,15):
-    monster_dead.append(load_image("assets/enemies/golem_01/golem_01_dead_{:02d}.png".format(x)))
+    monster_dead1.append(load_image_bigger("assets/enemies/golem_01/golem_01_dead_{:02d}.png".format(x)))
 
-monster_images = [{"walk": monster_walk,
-                  "dead": monster_dead}]
+monster_dead2 = []
+
+for x in range(1,15):
+    monster_dead2.append(load_image_bigger("assets/enemies/golem_02/golem_02_dead_{:02d}.png".format(x)))
+
+monster_dead3 = []
+
+for x in range(1,15):
+    monster_dead3.append(load_image_bigger("assets/enemies/golem_03/golem_03_dead_{:02d}.png".format(x)))
+
+monster_images = [{"walk": monster_walk2, "dead": monster_dead2},
+                  {"walk": monster_walk1, "dead": monster_dead1},
+                  {"walk": monster_walk3, "dead": monster_dead3}]
 
 bear_walk1 = []
 
@@ -150,23 +171,33 @@ bear_walk3 = []
 for x in range(1,13):
     bear_walk3.append(load_image("assets/enemies/wraith_03/wraith_03_{:02d}.png".format(x)))
 
-bear_dead = []
+bear_dead1 = []
 
 for x in range(1,16):
-    bear_dead.append(load_image("assets/enemies/wraith_03/wraith_03_dead_{:02d}.png".format(x)))
+    bear_dead1.append(load_image("assets/enemies/wraith_01/wraith_01_dead_{:02d}.png".format(x)))
 
-bear_images = [{"walk": bear_walk1, "dead": bear_dead},
-               {"walk": bear_walk2, "dead": bear_dead},
-               {"walk": bear_walk3, "dead": bear_dead}]
+bear_dead2 = []
+
+for x in range(1,16):
+    bear_dead2.append(load_image("assets/enemies/wraith_02/wraith_02_dead_{:02d}.png".format(x)))
+
+bear_dead3 = []
+
+for x in range(1,16):
+    bear_dead3.append(load_image("assets/enemies/wraith_03/wraith_03_dead_{:02d}.png".format(x)))
+
+bear_images = [{"walk": bear_walk1, "dead": bear_dead1},
+               {"walk": bear_walk3, "dead": bear_dead3},
+               {"walk": bear_walk2, "dead": bear_dead2}]
 
 # Sounds
-#JUMP_SOUND = pygame.mixer.Sound("assets/sounds/jump.wav")
-#COIN_SOUND = pygame.mixer.Sound("assets/sounds/pickup_coin.wav")
-#POWERUP_SOUND = pygame.mixer.Sound("assets/sounds/powerup.wav")
-#HURT_SOUND = pygame.mixer.Sound("assets/sounds/hurt.ogg")
-#DIE_SOUND = pygame.mixer.Sound("assets/sounds/death.wav")
-#LEVELUP_SOUND = pygame.mixer.Sound("assets/sounds/level_up.wav")
-#GAMEOVER_SOUND = pygame.mixer.Sound("assets/sounds/game_over.wav")
+JUMP_SOUND = pygame.mixer.Sound("assets/sounds/jump.wav")
+COIN_SOUND = pygame.mixer.Sound("assets/sounds/pickup_coin.wav")
+POWERUP_SOUND = pygame.mixer.Sound("assets/sounds/powerup.wav")
+# HURT_SOUND = pygame.mixer.Sound("assets/sounds/hurt.ogg")
+DIE_SOUND = pygame.mixer.Sound("assets/sounds/death.wav")
+LEVELUP_SOUND = pygame.mixer.Sound("assets/sounds/level_up.wav")
+GAMEOVER_SOUND = pygame.mixer.Sound("assets/sounds/game_over.wav")
 
 class Entity(pygame.sprite.Sprite):
 
@@ -225,6 +256,7 @@ class Character(Entity):
         self.on_ground = True
 
         self.score = 0
+        self.last_score = 0
         self.stars = 0
         self.lives = 3
         self.hearts = 3
@@ -249,7 +281,7 @@ class Character(Entity):
 
         if len(hit_list) > 0:
             self.vy = -1 * self.jump_power
-            #play_sound(JUMP_SOUND)
+            play_sound(JUMP_SOUND)
 
         self.rect.y -= 1
 
@@ -291,7 +323,7 @@ class Character(Entity):
         hit_list = pygame.sprite.spritecollide(self, diamonds, True)
 
         for diamond in hit_list:
-            #play_sound(COIN_SOUND)
+            play_sound(COIN_SOUND)
             self.score += diamond.value
     
     def process_stars(self, stars):
@@ -299,7 +331,7 @@ class Character(Entity):
         hit_list = pygame.sprite.spritecollide(self, stars, True)
 
         for star in hit_list:
-            #play_sound(COIN_SOUND)
+            play_sound(COIN_SOUND)
             self.stars += star.value
 
     def process_enemies(self, enemies):
@@ -314,10 +346,10 @@ class Character(Entity):
                 if enemy_top < hero_bottom < enemy_center and self.vy >= 0:
                     self.vy = -1 * self.jump_power
                     enemy.die()
-                    t_kill = Timer(0.7, enemy.kill)
+                    t_kill = Timer(0.4, enemy.kill)
                     t_kill.start()
                 else:
-                    #play_sound(HURT_SOUND)
+                    # play_sound(HURT_SOUND)
                     self.hearts -= 1
                     self.invincibility = int(0.75 * FPS)
     
@@ -345,17 +377,17 @@ class Character(Entity):
         hit_list = pygame.sprite.spritecollide(self, powerups, True)
 
         for p in hit_list:
-            #play_sound(POWERUP_SOUND)
+            play_sound(POWERUP_SOUND)
             p.apply(self)
 
     def check_flag(self, level):
         hit_list = pygame.sprite.spritecollide(self, level.flag, False)
 
-        if len(hit_list) > 0 and self.stars >= 3:
+        if len(hit_list) > 0 and self.stars >= 5:
             level.completed = True
-            #play_sound(LEVELUP_SOUND)
-        if len(hit_list) > 0 and self.stars < 3:
-            level.incompleted = True
+            play_sound(LEVELUP_SOUND)
+        if len(hit_list) > 0 and self.stars < 5:
+            level.uncompleted = True
 
     def set_image(self): 
         if self.on_ground:
@@ -388,20 +420,24 @@ class Character(Entity):
         else:
             self.image = self.image_dead_left
 
-        # if self.lives > 0:
-        #     play_sound(DIE_SOUND)
-        # else:
-        #     play_sound(GAMEOVER_SOUND)
+        self.score = self.last_score
+
+        if self.lives > 0:
+            play_sound(DIE_SOUND)
+        else:
+            play_sound(GAMEOVER_SOUND)
 
     def respawn(self, level):
         self.rect.x = level.start_x
         self.rect.y = level.start_y
         self.hearts = 3
+        self.stars = 0
         self.invincibility = 0
         self.facing_right = True
 
     def update(self, level):
         self.process_enemies(level.enemies)
+        self.process_deathblocks(level.deathblocks)
         self.apply_gravity(level)
         self.move_and_process_blocks(level.blocks)
         self.check_world_boundaries(level)
@@ -411,7 +447,6 @@ class Character(Entity):
             self.process_diamonds(level.diamonds)
             self.process_stars(level.stars)
             self.process_powerups(level.powerups)
-            self.process_deathblocks(level.deathblocks)
             self.check_flag(level)
 
             if self.invincibility > 0:
@@ -764,13 +799,13 @@ class Level():
         #     else:
         #         self.scenery_layer.blit(scenery_img, [0, start_y])
 
-        pygame.mixer.music.load(map_data['music'])
+        # pygame.mixer.music.load(map_data['music'])
 
         self.gravity = map_data['gravity']
         self.terminal_velocity = map_data['terminal-velocity']
 
         self.completed = False
-        self.incompleted = False
+        self.uncompleted = False
 
         self.blocks.add(self.starting_blocks)
         self.enemies.add(self.starting_enemies)
@@ -817,7 +852,7 @@ class Game():
     LEVEL_COMPLETED = 4
     GAME_OVER = 5
     VICTORY = 6
-    LEVEL_INCOMPLETED = 7
+    LEVEL_uncompleted = 7
 
     def __init__(self):
         self.window = screen
@@ -836,6 +871,7 @@ class Game():
         self.current_level += 1
         self.start()
         self.stage = Game.START
+        self.hero.last_score = self.hero.score
 
     def reset(self):
         self.hero = Character(hero_images)
@@ -904,7 +940,7 @@ class Game():
                     if event.key == JUMP:
                         self.hero.jump(self.level.blocks)
                 
-                elif self.stage == Game.LEVEL_INCOMPLETED:
+                elif self.stage == Game.LEVEL_uncompleted:
                     if event.key == JUMP:
                         self.hero.jump(self.level.blocks)
                     self.stage = Game.PLAYING
@@ -929,7 +965,7 @@ class Game():
             else:
                 self.hero.stop()
         
-        if self.stage == Game.LEVEL_INCOMPLETED:
+        if self.stage == Game.LEVEL_uncompleted:
             if pressed[LEFT]:
                 self.hero.move_left()
             elif pressed[RIGHT]:
@@ -943,24 +979,24 @@ class Game():
             self.hero.update(self.level)
             self.level.enemies.update(self.level, self.hero)
         
-        if self.stage == Game.LEVEL_INCOMPLETED:
+        if self.stage == Game.LEVEL_uncompleted:
             self.hero.update(self.level)
             self.level.enemies.update(self.level, self.hero)
             self.stage = Game.PLAYING
         
-        if self.level.incompleted:
-            self.stage = Game.LEVEL_INCOMPLETED
+        if self.level.uncompleted:
+            self.stage = Game.LEVEL_uncompleted
 
         if self.level.completed:
             if self.current_level < len(levels) - 1:
                 self.stage = Game.LEVEL_COMPLETED
             else:
                 self.stage = Game.VICTORY
-            pygame.mixer.music.stop()
+            # pygame.mixer.music.stop()
 
         elif self.hero.lives == 0:
             self.stage = Game.GAME_OVER
-            pygame.mixer.music.stop()
+            # pygame.mixer.music.stop()
 
         elif self.hero.hearts == 0:
             self.level.reset()
@@ -1002,8 +1038,8 @@ class Game():
             pass
         elif self.stage == Game.LEVEL_COMPLETED:
             self.display_message(self.window, "Level Complete", "Press any key to continue.")
-        elif self.stage == Game.LEVEL_INCOMPLETED:
-            self.display_message(self.window, "Level Incomplete", "Please collect at least three stars.")
+        elif self.stage == Game.LEVEL_uncompleted:
+            self.display_message(self.window, "Level Incomplete", "Please collect at least five stars.")
         elif self.stage == Game.VICTORY:
             self.display_message(self.window, "You Win!", "Press 'R' to restart.")
         elif self.stage == Game.GAME_OVER:
