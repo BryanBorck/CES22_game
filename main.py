@@ -36,7 +36,7 @@ def play():
         PLAY_RECT2 = PLAY_TEXT2.get_rect(center=(WIDTH/2, 200*scaler))
         SCREEN.blit(PLAY_TEXT2, PLAY_RECT2)
 
-        PLAY_TEXT3 = get_font(45).render("- Aperte cima para pular.", True, "Black")
+        PLAY_TEXT3 = get_font(45).render("- Aperte ESC para pausar.", True, "Black")
         PLAY_RECT3 = PLAY_TEXT3.get_rect(center=(WIDTH/2, 300*scaler))
         SCREEN.blit(PLAY_TEXT3, PLAY_RECT3)
 
