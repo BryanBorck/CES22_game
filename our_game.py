@@ -35,6 +35,7 @@ TRANSPARENT = (0, 0, 0, 0)
 DARK_BLUE = (16, 86, 103)
 ORANGE = (255,165,0)
 WHITE = (255, 255, 255)
+GOIABA = (255,111,111)
 
 # Fonts
 FONT_SM = pygame.font.Font("assets/fonts/8514fix.fon", 64)
