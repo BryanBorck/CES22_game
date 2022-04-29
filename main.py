@@ -19,35 +19,55 @@ def get_font(size): # Returns Press-Start-2P in the desired size
 
 def play():
     while True:
-        # PLAY_MOUSE_POS = pygame.mouse.get_pos()
+        PLAY_MOUSE_POS = pygame.mouse.get_pos()
 
-        game = our_game.Game()
-        game.start()
-        game.loop()
-        pygame.quit()
-        sys.exit()
+        #SCREEN.fill("black")
 
-        # SCREEN.fill("black")
+        BG = pygame.image.load("assets/menu/backoptions.jpg")
+        BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-        # PLAY_TEXT = get_font(45).render("This is the PLAY screen.", True, "White")
-        # PLAY_RECT = PLAY_TEXT.get_rect(center=(640, 260))
-        # SCREEN.blit(PLAY_TEXT, PLAY_RECT)
+        SCREEN.blit(BG, (0,0))
 
-        # PLAY_BACK = Button(image=None, pos=(640, 460), 
-        #                     text_input="BACK", font=get_font(75), base_color="White", hovering_color="Green")
+        PLAY_TEXT1 = get_font(45).render("- Aperte SPACE para pular.", True, "Black")
+        PLAY_RECT1 = PLAY_TEXT1.get_rect(center=(WIDTH/2, 100*scaler))
+        SCREEN.blit(PLAY_TEXT1, PLAY_RECT1)
 
-        # PLAY_BACK.changeColor(PLAY_MOUSE_POS)
-        # PLAY_BACK.update(SCREEN)
+        PLAY_TEXT2 = get_font(45).render("- Aperte <- para esquerda e -> para direita.", True, "Black")
+        PLAY_RECT2 = PLAY_TEXT2.get_rect(center=(WIDTH/2, 200*scaler))
+        SCREEN.blit(PLAY_TEXT2, PLAY_RECT2)
 
-        #for event in pygame.event.get():
-        #    if event.type == pygame.QUIT:
-        #        pygame.quit()
-        #        sys.exit()
-        #    if event.type == pygame.MOUSEBUTTONDOWN:
-        #        if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
-        #            main_menu()
+        PLAY_TEXT3 = get_font(45).render("- Aperte cima para pular.", True, "Black")
+        PLAY_RECT3 = PLAY_TEXT3.get_rect(center=(WIDTH/2, 300*scaler))
+        SCREEN.blit(PLAY_TEXT3, PLAY_RECT3)
 
-        #pygame.display.update()
+        PLAY_TEXT4 = get_font(45).render("- Elimine o inimigo pulando em cima dele!", True, "White")
+        PLAY_RECT4 = PLAY_TEXT4.get_rect(center=(WIDTH/2, 400*scaler))
+        SCREEN.blit(PLAY_TEXT4, PLAY_RECT4)
+
+        PLAY_TEXT5 = get_font(45).render("- Colete todas as 5 estrelas para passar de fase!", True, "White")
+        PLAY_RECT5 = PLAY_TEXT5.get_rect(center=(WIDTH/2, 500*scaler))
+        SCREEN.blit(PLAY_TEXT5, PLAY_RECT5)
+
+
+        PLAY_BACK = Button(image=None, pos=(WIDTH/2, 650*scaler), 
+                             text_input="Entendi!", font=get_font(75), base_color="White", hovering_color="Black")
+
+        PLAY_BACK.changeColor(PLAY_MOUSE_POS)
+        PLAY_BACK.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
+                    game = our_game.Game()
+                    game.start()
+                    game.loop()
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
     
 def options():
     while True:
@@ -93,7 +113,7 @@ def main_menu():
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(100).render("MENU PRINCIPAL", True, our_game.GOIABA)
+        MENU_TEXT = get_font(80).render("NICK'S HARDEST ADVENTURE", True, our_game.GOIABA)
         MENU_RECT = MENU_TEXT.get_rect(center=(WIDTH/2, 100*scaler))
 
         PLAY_BUTTON = Button(image=None, pos=(WIDTH/2, 250*scaler), 

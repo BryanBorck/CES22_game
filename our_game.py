@@ -26,6 +26,7 @@ sound_on = True
 LEFT = pygame.K_LEFT
 RIGHT = pygame.K_RIGHT
 JUMP = pygame.K_SPACE
+ESCAPE = pygame.K_ESCAPE
 
 # Levels
 levels = ["levels/world-1.json", "levels/world-2.json", "levels/world-3.json"]
@@ -115,7 +116,9 @@ star_img = load_image("assets/items/new/star_icon.png")
 heart_img = load_image("assets/items/new/heart_icon.png")
 oneup_img = load_image("assets/items/new/life_icon.png")
 potion_img = load_image("assets/items/new/portion_icon.png")
-deathblock_img = load_image("assets/tiles/deathblock.png")
+deathblock_img = [load_image("assets/tiles/deathblock2.png"),
+                  load_image("assets/tiles/deathblock3.png"),
+                  load_image("assets/tiles/deathblock1.png")]
 flag_img = load_image("assets/items/flag.png")
 flagpole_img = load_image("assets/items/flagpole.png")
 girl_img = pygame.image.load("assets/items/new/girl_icon.png").convert_alpha()
@@ -766,7 +769,7 @@ class Level():
 
         for item in map_data['deathblocks']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
-            self.starting_deathblocks.append(DeathBlock(x, y, deathblock_img))
+            self.starting_deathblocks.append(DeathBlock(x, y, deathblock_img[self.number - 1]))
 
         for item in map_data['hearts']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
@@ -970,6 +973,8 @@ class Game():
                 elif self.stage == Game.PLAYING:
                     if event.key == JUMP:
                         self.hero.jump(self.level.blocks)
+                    if event.key == ESCAPE:
+                        self.stage == Game.PAUSED
                 
                 elif self.stage == Game.LEVEL_uncompleted:
                     if event.key == JUMP:
@@ -977,7 +982,12 @@ class Game():
                     self.stage = Game.PLAYING
 
                 elif self.stage == Game.PAUSED:
-                    pass
+                    if event.key == ESCAPE:
+                        self.stage = pygame.QUIT
+                        pygame.quit()
+                        sys.exit()
+                    if event.key == JUMP:
+                        self.stage = Game.PLAYING
 
                 elif self.stage == Game.LEVEL_COMPLETED:
                     self.advance()
@@ -993,6 +1003,9 @@ class Game():
                 self.hero.move_left()
             elif pressed[RIGHT]:
                 self.hero.move_right()
+            elif pressed[ESCAPE]:
+                self.hero.stop()
+                self.stage = Game.PAUSED
             else:
                 self.hero.stop()
         
@@ -1066,7 +1079,7 @@ class Game():
         elif self.stage == Game.START:
             self.display_message(self.window, "Ready?!!!", "Press any key to start.")
         elif self.stage == Game.PAUSED:
-            pass
+            self.display_message(self.window, "PAUSED", "Press 'space key' to continue or 'esc key' to quit.")
         elif self.stage == Game.LEVEL_COMPLETED:
             self.display_message(self.window, "Level Complete", "Press any key to continue.")
         elif self.stage == Game.LEVEL_uncompleted:
