@@ -11,7 +11,7 @@ pygame.init()
 
 # Window settings
 scale_factor = 1920/pygame.display.get_desktop_sizes()[0][0]
-TITLE = "Formation"
+TITLE = "Nick's Hardest Adventure"
 WIDTH = int(1920/scale_factor)
 HEIGHT = int(1080/scale_factor)
 FPS = 60
@@ -40,7 +40,7 @@ WHITE = (255, 255, 255)
 FONT_SM = pygame.font.Font("assets/fonts/8514fix.fon", 64)
 FONT_DS = pygame.font.Font("assets/fonts/Roboto-Bold.ttf", 32)
 FONT_MD = pygame.font.Font("assets/fonts/8514fix.fon", 64)
-FONT_LG = pygame.font.Font("assets/fonts/OCRAEXT.ttf", 100)
+FONT_LG = pygame.font.Font("assets/fonts/OCRAEXT.ttf", 80)
 
 # Helper functions
 def load_image(file_path, width=GRID_SIZE, height=GRID_SIZE):
@@ -113,6 +113,7 @@ diamond_img = load_image("assets/items/new/diamond_icon.png")
 star_img = load_image("assets/items/new/star_icon.png")
 heart_img = load_image("assets/items/new/heart_icon.png")
 oneup_img = load_image("assets/items/new/life_icon.png")
+potion_img = load_image("assets/items/new/portion_icon.png")
 deathblock_img = load_image("assets/tiles/deathblock.png")
 flag_img = load_image("assets/items/flag.png")
 flagpole_img = load_image("assets/items/flagpole.png")
@@ -194,7 +195,9 @@ bear_images = [{"walk": bear_walk1, "dead": bear_dead1},
 JUMP_SOUND = pygame.mixer.Sound("assets/sounds/jump.wav")
 COIN_SOUND = pygame.mixer.Sound("assets/sounds/pickup_coin.wav")
 POWERUP_SOUND = pygame.mixer.Sound("assets/sounds/powerup.wav")
-# HURT_SOUND = pygame.mixer.Sound("assets/sounds/hurt.ogg")
+HURT_HERO_SOUND = pygame.mixer.Sound("assets/sounds/female_pain.wav")
+HURT_ENEMY_SOUND = pygame.mixer.Sound("assets/sounds/enemy_crying.wav")
+PUNCH_SOUND = pygame.mixer.Sound("assets/sounds/punch.wav")
 DIE_SOUND = pygame.mixer.Sound("assets/sounds/death.wav")
 LEVELUP_SOUND = pygame.mixer.Sound("assets/sounds/level_up.wav")
 GAMEOVER_SOUND = pygame.mixer.Sound("assets/sounds/game_over.wav")
@@ -228,6 +231,7 @@ class DeathBlock(Entity):
     
     def apply(self, character):
         character.hearts -= 1
+        play_sound(HURT_HERO_SOUND)
 
 class Character(Entity):
 
@@ -292,6 +296,7 @@ class Character(Entity):
             self.rect.right = level.width
         if self.rect.top > level.height:
             self.hearts -= 1
+            play_sound(HURT_HERO_SOUND)
 
     def move_and_process_blocks(self, blocks):
         self.rect.x += self.vx
@@ -345,11 +350,12 @@ class Character(Entity):
                 hero_bottom = self.rect.bottom
                 if enemy_top < hero_bottom < enemy_center and self.vy >= 0:
                     self.vy = -1 * self.jump_power
+                    play_sound(PUNCH_SOUND)
                     enemy.die()
                     t_kill = Timer(0.4, enemy.kill)
                     t_kill.start()
                 else:
-                    # play_sound(HURT_SOUND)
+                    play_sound(HURT_HERO_SOUND)
                     self.hearts -= 1
                     self.invincibility = int(0.75 * FPS)
     
@@ -375,6 +381,13 @@ class Character(Entity):
 
     def process_powerups(self, powerups):
         hit_list = pygame.sprite.spritecollide(self, powerups, True)
+
+        for p in hit_list:
+            play_sound(POWERUP_SOUND)
+            p.apply(self)
+    
+    def process_potions(self, potions):
+        hit_list = pygame.sprite.spritecollide(self, potions, True)
 
         for p in hit_list:
             play_sound(POWERUP_SOUND)
@@ -447,6 +460,7 @@ class Character(Entity):
             self.process_diamonds(level.diamonds)
             self.process_stars(level.stars)
             self.process_powerups(level.powerups)
+            self.process_potions(level.potions)
             self.check_flag(level)
 
             if self.invincibility > 0:
@@ -619,6 +633,7 @@ class Enemy(Entity):
             self.facing_right = True
         else:
             self.facing_right = False
+        play_sound(HURT_ENEMY_SOUND)
         self.vx = 0
         self.vivo = False
 
@@ -663,6 +678,13 @@ class OneUp(Entity):
     def apply(self, character):
         character.lives += 1
 
+class Potion(Entity):
+    def __init__(self, x, y, image):
+        super().__init__(x, y, image)
+
+    def apply(self, character):
+        character.invincibility = int(3 * FPS)
+
 class Heart(Entity):
     def __init__(self, x, y, image):
         super().__init__(x, y, image)
@@ -683,6 +705,7 @@ class Level():
         self.starting_diamonds = []
         self.starting_stars = []
         self.starting_powerups = []
+        self.starting_potions = []
         self.starting_deathblocks = []
         self.starting_flag = []
 
@@ -693,6 +716,7 @@ class Level():
         self.diamonds = pygame.sprite.Group()
         self.stars = pygame.sprite.Group()
         self.powerups = pygame.sprite.Group()
+        self.potions = pygame.sprite.Group()
         self.deathblocks = pygame.sprite.Group()
         self.flag = pygame.sprite.Group()
 
@@ -734,6 +758,10 @@ class Level():
         for item in map_data['oneups']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
             self.starting_powerups.append(OneUp(x, y, oneup_img))
+        
+        for item in map_data['potions']:
+            x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
+            self.starting_potions.append(Potion(x, y, potion_img))
 
         for item in map_data['deathblocks']:
             x, y = item[0] * GRID_SIZE, item[1] * GRID_SIZE
@@ -812,10 +840,11 @@ class Level():
         self.diamonds.add(self.starting_diamonds)
         self.stars.add(self.starting_stars)
         self.powerups.add(self.starting_powerups)
+        self.potions.add(self.starting_potions)
         self.deathblocks.add(self.starting_deathblocks)
         self.flag.add(self.starting_flag)
 
-        self.active_sprites.add(self.diamonds, self.stars, self.enemies, self.powerups, self.deathblocks)
+        self.active_sprites.add(self.diamonds, self.stars, self.enemies, self.powerups, self.potions, self.deathblocks)
         self.inactive_sprites.add(self.blocks, self.flag)
 
         for s in self.active_sprites:
@@ -836,9 +865,10 @@ class Level():
         self.diamonds.add(self.starting_diamonds)
         self.stars.add(self.starting_stars)
         self.powerups.add(self.starting_powerups)
+        self.potions.add(self.starting_potions)
         self.deathblocks.add(self.starting_deathblocks)
 
-        self.active_sprites.add(self.stars, self.enemies, self.powerups, self.deathblocks)
+        self.active_sprites.add(self.stars, self.enemies, self.powerups, self.potions, self.deathblocks)
 
         for e in self.enemies:
             e.reset()
@@ -880,7 +910,7 @@ class Game():
         self.stage = Game.SPLASH
 
     def display_splash(self, surface):
-        line1 = FONT_LG.render(TITLE, 1, ORANGE)
+        line1 = FONT_LG.render(TITLE, 1, WHITE)
         line2 = FONT_SM.render("Press any key to start.", 1, WHITE)
 
         x1 = WIDTH / 2 - line1.get_width() / 2
@@ -893,7 +923,7 @@ class Game():
         surface.blit(line2, (x2, y2))
 
     def display_message(self, surface, primary_text, secondary_text):
-        line1 = FONT_MD.render(primary_text, 1, ORANGE)
+        line1 = FONT_MD.render(primary_text, 1, WHITE)
         line2 = FONT_SM.render(secondary_text, 1, WHITE)
 
         x1 = WIDTH / 2 - line1.get_width() / 2
