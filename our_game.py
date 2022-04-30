@@ -61,18 +61,6 @@ def play_sound(sound, loops=0, maxtime=0, fade_ms=0):
     if sound_on:
         sound.play(loops, maxtime, fade_ms)
 
-#def play_music():
-    # if sound_on:
-    #     pygame.mixer.music.play(-1)
-
-# Images
-
-# BOY
-# hero_walk1 = load_image("assets/character/boy_walk1.png")
-# hero_walk2 = load_image("assets/character/boy_walk2.png")
-# hero_jump = load_image("assets/character/boy_jump.png")
-# hero_idle = load_image("assets/character/boy_idle.png")
-
 #GIRL
 hero_walk1 = load_image("assets/character/girl_walk1.png")
 hero_walk2 = load_image("assets/character/girl_walk2.png")
@@ -364,19 +352,9 @@ class Character(Entity):
                     self.invincibility = int(0.75 * FPS)
     
     def process_deathblocks(self, deathblocks):
-        # epsilon_h = self.rect.h / 20
-        # epsilon_w = self.rect.w / 20
         hit_list = pygame.sprite.spritecollide(self, deathblocks, False)
 
         for block in hit_list:
-            # if self.vx > 0:
-            #     self.rect.right = block.rect.left - epsilon_w
-            # elif self.vx < 0:
-            #     self.rect.left = block.rect.right + epsilon_w
-            # if self.vy > 0:
-            #     self.rect.bottom = block.rect.top - epsilon_h
-            # elif self.vy < 0:
-            #     self.rect.top = block.rect.bottom + epsilon_h
             if self.invincibility == 0:
                 block.apply(self)
                 self.invincibility = int(0.75 * FPS)
@@ -812,27 +790,6 @@ class Level():
             else:
                 self.background_layer.blit(background_img, [0, start_y])
 
-        # if map_data['scenery-img'] != "":
-        #     scenery_img = pygame.image.load(map_data['scenery-img']).convert_alpha()
-
-        #     if map_data['scenery-fill-y']:
-        #         h = scenery_img.get_height()
-        #         w = int(scenery_img.get_width() * HEIGHT / h)
-        #         scenery_img = pygame.transform.scale(scenery_img, (w, HEIGHT))
-
-        #     if "top" in map_data['scenery-position']:
-        #         start_y = 0
-        #     elif "bottom" in map_data['scenery-position']:
-        #         start_y = self.height - scenery_img.get_height()
-
-        #     if map_data['scenery-repeat-x']:
-        #         for x in range(0, self.width, scenery_img.get_width()):
-        #             self.scenery_layer.blit(scenery_img, [x, start_y])
-        #     else:
-        #         self.scenery_layer.blit(scenery_img, [0, start_y])
-
-        # pygame.mixer.music.load(map_data['music'])
-
         self.gravity = map_data['gravity']
         self.terminal_velocity = map_data['terminal-velocity']
 
@@ -860,7 +817,6 @@ class Level():
         self.inactive_sprites.draw(self.inactive_layer)
 
         self.background_layer.convert()
-        # self.scenery_layer.convert()
         self.inactive_layer.convert()
         self.active_layer.convert()
 
@@ -940,13 +896,9 @@ class Game():
         surface.blit(line2, (x2, y2))
 
     def display_stats(self, surface):
-        # hearts_text = FONT_SM.render("Hearts: " + str(self.hero.hearts), 1, WHITE)
-        # lives_text = FONT_SM.render("Lives: " + str(self.hero.lives), 1, WHITE)
         score_text = FONT_DS.render(str(self.hero.score), 1, WHITE)
         stars_text = FONT_DS.render(str(self.hero.stars), 1, WHITE)
 
-        # surface.blit(hearts_text, (32, 32))
-        # surface.blit(lives_text, (32, 64))
         surface.blit(score_text, (WIDTH - score_text.get_width() - 32, 18))
         surface.blit(diamond_img, (WIDTH - score_text.get_width() - 100, 0))
         surface.blit(stars_text, (WIDTH - stars_text.get_width() - 32, 66))
@@ -1066,7 +1018,6 @@ class Game():
             self.level.active_layer.blit(self.hero.image, [self.hero.rect.x, self.hero.rect.y])
 
         self.window.blit(self.level.background_layer, [offset_x / 3, offset_y])
-        # self.window.blit(self.level.scenery_layer, [offset_x / 2, offset_y])
         self.window.blit(self.level.inactive_layer, [offset_x, offset_y])
         self.window.blit(self.level.active_layer, [offset_x, offset_y])
 
